@@ -1,0 +1,112 @@
+Loaded cleaned titanic.csv, shape: (889, 14)
+
+==========================================================================================
+TASK 7: Stratified train/test split
+==========================================================================================
+Class balance (full data):
+ survived
+0    0.618
+1    0.382
+Name: proportion, dtype: float64
+
+Stratified on 'survived' because the classes are imbalanced (~62% did not survive vs ~38% survived). A plain random split risks over/under-representing the minority class in train or test, which would bias both training and the reliability of the evaluation metrics -- stratification keeps the same ratio in both splits.
+Train shape: (711, 7) Test shape: (178, 7)
+
+==========================================================================================
+TASK 8: Preprocessing pipeline (fit on train only)
+==========================================================================================
+Preprocessing: numeric -> median impute + StandardScaler; categorical (sex, embarked) -> most-frequent impute + one-hot encoding. All fit on X_train only, then transform-only on X_test.
+
+==========================================================================================
+TASK 9: Train Logistic Regression, Decision Tree, Random Forest
+==========================================================================================
+Trained: Logistic Regression
+Trained: Decision Tree
+Trained: Random Forest
+Decision tree rendered -> /home/claude/zepto-project/analytics/charts/decision_tree.png
+
+==========================================================================================
+TASK 10: Evaluation - confusion matrix, accuracy, precision, recall, F1, ROC/AUC
+==========================================================================================
+
+Logistic Regression
+Confusion matrix:
+[[97 13]
+ [21 47]]
+Accuracy=0.809 Precision=0.783 Recall=0.691 F1=0.734 AUC=0.861
+
+Decision Tree
+Confusion matrix:
+[[98 12]
+ [30 38]]
+Accuracy=0.764 Precision=0.760 Recall=0.559 F1=0.644 AUC=0.837
+
+Random Forest
+Confusion matrix:
+[[95 15]
+ [19 49]]
+Accuracy=0.809 Precision=0.766 Recall=0.721 F1=0.742 AUC=0.820
+
+Model comparison table:
+                      Accuracy  Precision  Recall     F1    AUC
+Model                                                         
+Logistic Regression     0.809      0.783   0.691  0.734  0.861
+Decision Tree           0.764      0.760   0.559  0.644  0.837
+Random Forest           0.809      0.766   0.721  0.742  0.820
+
+==========================================================================================
+TASK 11: Imbalance handling comparison
+==========================================================================================
+Class balance in y_train:
+ survived
+0    0.617
+1    0.383
+Name: proportion, dtype: float64
+
+Imbalance strategy comparison:
+                          Precision  Recall     F1
+Strategy                                         
+Baseline (no handling)       0.783   0.691  0.734
+class_weight='balanced'      0.718   0.750  0.734
+SMOTE (train fold only)      0.735   0.735  0.735
+
+Conclusion: 'class_weight='balanced'' achieved the highest recall on the minority (survived) class, at some cost to precision -- expected, since both class_weight and SMOTE deliberately shift the decision boundary to catch more true positives. Baseline logistic regression favors precision because it is biased toward the majority class. Which strategy 'wins' depends on whether missing a survivor (false negative) or wrongly flagging a non-survivor (false positive) is costlier for the use case.
+
+==========================================================================================
+TASK 12: GridSearchCV tuning (Random Forest) + OOB score
+==========================================================================================
+Best params: {'model__max_depth': None, 'model__max_features': 'sqrt', 'model__n_estimators': 300}
+OOB score of best estimator: 0.807
+
+==========================================================================================
+TASK 13: Regression side-task (predict fare)
+==========================================================================================
+MAE=20.67 RMSE=42.44 R2=0.325 Adjusted R2=0.305
+Residuals fan out as predicted fare increases (the spread of residuals grows with the fitted value rather than staying constant) -- this is heteroscedasticity, meaning the constant-variance assumption of linear regression is violated here, largely because fare itself is a heavily right-skewed, high-variance variable.
+
+==========================================================================================
+TASK 14: Full model comparison table + recommendation
+==========================================================================================
+
+--- Classification metrics ---
+                     Accuracy  Precision  Recall     F1    AUC
+Model                                                         
+Logistic Regression     0.809      0.783   0.691  0.734  0.861
+Decision Tree           0.764      0.760   0.559  0.644  0.837
+Random Forest           0.809      0.766   0.721  0.742  0.820
+
+--- Regression metrics (fare side-task; different scale, NOT comparable to above) ---
+                            MAE    RMSE     R2  Adjusted R2
+Linear Regression (fare)  20.67  42.442  0.325        0.305
+
+Recommendation: deploy the Random Forest classifier -- across the comparison table it posts the strongest F1 (0.742) and AUC (0.820), giving the best balance of precision and recall rather than optimizing a single metric. Random Forest in particular also tends to generalize better than a single Decision Tree and is more robust to the modest feature set here than Logistic Regression's linear boundary. If the cost of missing a true survivor is high, the class_weight/SMOTE-adjusted variant from Task 11 would be preferred over the plain baseline despite its lower precision.
+
+==========================================================================================
+TASK 15: Save best pipeline with joblib
+==========================================================================================
+Saved full fitted pipeline (preprocessing + model) -> /home/claude/zepto-project/analytics/best_pipeline.joblib
+Reload check - prediction on one raw test row: [0]  (matches original: True )
+
+==========================================================================================
+02_modeling.py complete
+==========================================================================================

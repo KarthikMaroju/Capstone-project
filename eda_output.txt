@@ -1,0 +1,138 @@
+
+==========================================================================================
+TASK 1: Load and profile
+==========================================================================================
+shape: (891, 15)
+
+df.info():
+<class 'pandas.DataFrame'>
+RangeIndex: 891 entries, 0 to 890
+Data columns (total 15 columns):
+ #   Column       Non-Null Count  Dtype   
+---  ------       --------------  -----   
+ 0   survived     891 non-null    int64   
+ 1   pclass       891 non-null    int64   
+ 2   sex          891 non-null    str     
+ 3   age          714 non-null    float64 
+ 4   sibsp        891 non-null    int64   
+ 5   parch        891 non-null    int64   
+ 6   fare         891 non-null    float64 
+ 7   embarked     889 non-null    str     
+ 8   class        891 non-null    category
+ 9   who          891 non-null    str     
+ 10  adult_male   891 non-null    bool    
+ 11  deck         203 non-null    category
+ 12  embark_town  889 non-null    str     
+ 13  alive        891 non-null    str     
+ 14  alone        891 non-null    bool    
+dtypes: bool(2), category(2), float64(2), int64(4), str(5)
+memory usage: 80.7 KB
+
+df.describe():
+          survived      pclass   sex         age  ...  deck  embark_town  alive alone
+count   891.000000  891.000000   891  714.000000  ...   203          889    891   891
+unique         NaN         NaN     2         NaN  ...     7            3      2     2
+top            NaN         NaN  male         NaN  ...     C  Southampton     no  True
+freq           NaN         NaN   577         NaN  ...    59          644    549   537
+mean      0.383838    2.308642   NaN   29.699118  ...   NaN          NaN    NaN   NaN
+std       0.486592    0.836071   NaN   14.526497  ...   NaN          NaN    NaN   NaN
+min       0.000000    1.000000   NaN    0.420000  ...   NaN          NaN    NaN   NaN
+25%       0.000000    2.000000   NaN   20.125000  ...   NaN          NaN    NaN   NaN
+50%       0.000000    3.000000   NaN   28.000000  ...   NaN          NaN    NaN   NaN
+75%       1.000000    3.000000   NaN   38.000000  ...   NaN          NaN    NaN   NaN
+max       1.000000    3.000000   NaN   80.000000  ...   NaN          NaN    NaN   NaN
+
+[11 rows x 15 columns]
+
+Percentage missing (columns with any missing values):
+deck           77.22
+age            19.87
+embarked        0.22
+embark_town     0.22
+dtype: float64
+
+Saved offline fallback -> /home/claude/zepto-project/analytics/titanic.csv
+
+==========================================================================================
+TASK 2: Missing-value handling (threshold rule)
+==========================================================================================
+Decisions made:
+- deck: 77.22% missing (>30%) -> DROPPED THE COLUMN (imputing >30% missing would be unreliable; column not needed downstream).
+- age: 19.87% missing (5-30%) -> IMPUTED with median (28.00).
+- embarked: 0.22% missing (<5%) -> DROPPED the 2 affected rows.
+- embark_town: 0.22% missing (<5%) -> DROPPED the 0 affected rows.
+
+Remaining missing values after cleaning:
+ Series([], dtype: int64)
+
+Cleaned shape: (889, 14)
+Re-saved cleaned dataset -> /home/claude/zepto-project/analytics/titanic.csv
+
+==========================================================================================
+TASK 3: Univariate analysis (age, fare)
+==========================================================================================
+age: Q1=22.00 Q3=35.00 IQR=13.00 bounds=[2.50, 54.50] -> 65 outliers
+fare: Q1=7.90 Q3=31.00 IQR=23.10 bounds=[-26.76, 65.66] -> 114 outliers
+
+fare: mean=32.10, median=14.45, mode=8.05
+fare distribution is right-skewed: mean > median > mode indicates a long right tail driven by a small number of high-fare (first-class) passengers.
+
+==========================================================================================
+TASK 4: Bivariate analysis
+==========================================================================================
+Survival rate by sex -> female: 0.740, male: 0.189
+
+Survival rate by pclass:
+  pclass 1: 0.626
+  pclass 2: 0.473
+  pclass 3: 0.242
+
+Survival rate by sex & pclass:
+  sex=female, pclass=1: 0.967  (n=92)
+  sex=female, pclass=2: 0.921  (n=76)
+  sex=female, pclass=3: 0.500  (n=144)
+  sex=male, pclass=1: 0.369  (n=122)
+  sex=male, pclass=2: 0.157  (n=108)
+  sex=male, pclass=3: 0.135  (n=347)
+
+Correlation matrix (6x6):
+           survived  pclass    age  sibsp  parch   fare
+survived     1.000  -0.336 -0.070 -0.034  0.083  0.255
+pclass      -0.336   1.000 -0.337  0.082  0.017 -0.548
+age         -0.070  -0.337  1.000 -0.233 -0.171  0.094
+sibsp       -0.034   0.082 -0.233  1.000  0.415  0.161
+parch        0.083   0.017 -0.171  0.415  1.000  0.218
+fare         0.255  -0.548  0.094  0.161  0.218  1.000
+
+Top 2 strongest correlations (by |r|):
+  pclass <-> fare: r = -0.548
+  sibsp <-> parch: r = 0.415
+Interpretation: the strongest relationship is pclass<->fare (r=-0.548) -- higher-class (numerically lower pclass) tickets cost more, so the correlation with fare is strongly negative. The second strongest is sibsp<->parch (r=0.415) -- passengers traveling with more siblings/spouses also tended to travel with more parents/children, i.e. family groups moved together, which is a family-size signal rather than a survival driver on its own.
+
+==========================================================================================
+TASK 5: Multivariate data story (>=4 charts)
+==========================================================================================
+Chart 1 (bar): Survival rate by class and sex -> Women in 1st and 2nd class survived at very high rates (>90%), while men in 2nd and 3rd class survived at the lowest rates. Sex is a stronger predictor of survival than class alone, but the two compound: being both male and 3rd class was the worst combination.
+Chart 2 (box): Age by survival -> Median age is similar between survivors and non-survivors, but survivors include more very young children (consistent with 'women and children first'), while the non-survivor group has a slightly heavier concentration of working-age men.
+Chart 3 (scatter): Fare vs age by survival -> Survivors cluster at higher fares across all ages, reinforcing that ticket price (a proxy for class and deck location) mattered more to survival odds than age by itself.
+Chart 4 (pair plot): Across every pairing, pclass and fare separate survivors from non-survivors more cleanly than age does -- together the four charts build the argument that survival was driven primarily by class/fare (proxy for deck and lifeboat access) and sex, with age playing a secondary, mostly child-priority role.
+
+==========================================================================================
+TASK 6: EDA-stage standardization check (age, fare)
+==========================================================================================
+Before standardization:
+             age       fare
+mean  29.315152  32.096681
+std   12.984932  49.697504
+
+After z-score standardization (approx mean 0, std 1):
+       age  fare
+mean  0.0   0.0
+std   1.0   1.0
+
+Note: this is an EDA-stage sanity check only. The modeling pipeline in 02_modeling.py fits its own StandardScaler on the TRAIN split only.
+
+==========================================================================================
+01_eda.py complete
+==========================================================================================
+Charts saved to: /home/claude/zepto-project/analytics/charts

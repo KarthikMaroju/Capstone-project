@@ -1,0 +1,14 @@
+Module 3: unblock real embeddings via GitHub-hosted model mirror
+
+- ingest.py/graph.py now fall back to a local model copy when huggingface.co
+  is unreachable (network-restricted sandboxes); normal machines with open
+  internet still just download from the hub directly
+- Verified for real: 8 real chunks embedded with the actual all-MiniLM-L6-v2
+  model, indexed into a real persistent ChromaDB collection, genuine semantic
+  retrieval confirmed (refund query correctly ranks the Returns/Refunds doc)
+- Real E2E test re-run through the actual FastAPI app: policy question uses
+  real retrieval (sources: doc_01, doc_02, doc_04), general question
+  correctly routes to direct_answer with empty sources
+- Moved test_wiring_offline.py into tests/ to match requested structure
+- local_models/ excluded via .gitignore (sandbox-only fallback, not needed
+  on a machine with normal internet access)

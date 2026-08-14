@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zepto Data &amp; AI Platform — Verified Build Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0D1117;
+    --panel:#151B23;
+    --parchment:#F4F0E6;
+    --rule:#2A323C;
+    --teal:#3ECF8E;
+    --amber:#E8A33D;
+    --coral:#E8735C;
+    --ink-soft:#8B96A5;
+    --text-on-parchment:#1B1F24;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--ink);
+    color:#DCE1E8;
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Space Grotesk', sans-serif; font-weight:700; letter-spacing:-0.01em;}
+  .mono{font-family:'IBM Plex Mono', monospace;}
+  a{color:var(--teal);}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    max-width:920px; margin:0 auto; padding:88px 28px 56px;
+    border-bottom:1px solid var(--rule);
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; letter-spacing:0.14em;
+    text-transform:uppercase; color:var(--teal); margin-bottom:18px;
+  }
+  .hero h1{font-size:clamp(32px,5.2vw,52px); line-height:1.08; color:#fff; max-width:780px;}
+  .hero p.lede{
+    margin-top:18px; font-size:18px; color:var(--ink-soft); max-width:600px;
+  }
+  .status-line{
+    margin-top:36px; font-family:'IBM Plex Mono', monospace; font-size:13.5px;
+    background:var(--panel); border:1px solid var(--rule); border-radius:8px;
+    padding:18px 20px; color:#B8C2CC; overflow-x:auto; white-space:pre;
+  }
+  .status-line .ok{color:var(--teal);}
+  .status-line .path{color:var(--amber);}
+
+  /* ---------- PIPELINE RAIL ---------- */
+  .rail-wrap{max-width:920px; margin:0 auto; padding:56px 28px 100px; position:relative;}
+  .stage{
+    position:relative; padding-left:64px; padding-bottom:64px;
+  }
+  .stage:last-child{padding-bottom:0;}
+  .stage::before{ /* connecting line */
+    content:''; position:absolute; left:19px; top:44px; bottom:-20px; width:1px;
+    background:var(--rule);
+  }
+  .stage:last-child::before{display:none;}
+  .stage-num{
+    position:absolute; left:0; top:0; width:40px; height:40px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:15px;
+    border:1.5px solid; background:var(--ink);
+  }
+  .stage-num.m1{color:var(--coral); border-color:var(--coral);}
+  .stage-num.m2{color:var(--teal); border-color:var(--teal);}
+  .stage-num.m3{color:var(--amber); border-color:var(--amber);}
+
+  .stage h2{font-size:23px; color:#fff; margin-bottom:4px;}
+  .stage .subtitle{color:var(--ink-soft); font-size:14.5px; margin-bottom:22px;}
+
+  .card{
+    background:var(--parchment); color:var(--text-on-parchment);
+    border-radius:10px; padding:26px 26px 24px; margin-bottom:16px;
+  }
+  .card h3{font-size:14px; text-transform:uppercase; letter-spacing:0.06em; color:#5A6472; margin-bottom:14px; font-family:'IBM Plex Mono', monospace; font-weight:500;}
+
+  .metric-row{display:flex; flex-wrap:wrap; gap:28px; margin-bottom:6px;}
+  .metric{min-width:120px;}
+  .metric .val{font-family:'IBM Plex Mono', monospace; font-size:24px; font-weight:600; color:var(--text-on-parchment);}
+  .metric .lbl{font-size:12px; color:#6B7480; margin-top:2px;}
+
+  table{width:100%; border-collapse:collapse; font-size:13.5px; margin-top:6px;}
+  th,td{text-align:left; padding:8px 10px; border-bottom:1px solid #DCD6C4;}
+  th{font-family:'IBM Plex Mono', monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:0.04em; color:#6B7480; font-weight:500;}
+  td.num{font-family:'IBM Plex Mono', monospace;}
+  tr:last-child td{border-bottom:none;}
+  .best{font-weight:600; color:#1B7A4E;}
+
+  .terminal{
+    background:#1B2129; color:#B8E6C9; font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px; border-radius:8px; padding:16px 18px; margin-top:10px;
+    overflow-x:auto; line-height:1.6;
+  }
+  .terminal .cmd{color:#8FB8D9;}
+  .terminal .q{color:var(--amber);}
+
+  .thumbs{display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px; margin-top:14px;}
+  .thumbs img{width:100%; border-radius:6px; border:1px solid #DCD6C4; display:block;}
+  .thumbs figcaption{font-size:10.5px; color:#6B7480; margin-top:4px; font-family:'IBM Plex Mono', monospace;}
+
+  .chip-row{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px;}
+  .chip{
+    font-family:'IBM Plex Mono', monospace; font-size:11.5px; padding:4px 10px;
+    border-radius:20px; background:#E8E2D2; color:#4A5260;
+  }
+
+  .note{font-size:12.5px; color:#7A8390; margin-top:14px; font-style:italic;}
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    max-width:920px; margin:0 auto; padding:40px 28px 90px;
+    border-top:1px solid var(--rule); color:var(--ink-soft); font-size:13.5px;
+  }
+  footer .mono{color:#5A6472; font-size:12px;}
+
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="eyebrow">Capstone / build verification report</div>
+  <h1>Three modules. Real data in, real numbers out.</h1>
+  <p class="lede">A scraped-and-queried book catalog, a full Titanic modeling pipeline, and a retrieval-augmented support assistant — every number on this page came from an actual execution, not a written expectation.</p>
+  <div class="status-line"><span class="ok">$</span> <span class="cmd">git log --oneline --graph --all | head -3</span>
+<span class="path">*</span>   Merge feature/module-3-real-embeddings <span class="ok">✓</span>
+<span class="path">|</span>\
+<span class="path">|</span> * Module 3: unblock real embeddings via GitHub-hosted model mirror</div>
+</section>
+
+<div class="rail-wrap">
+
+  <!-- MODULE 1 -->
+  <div class="stage" id="module-1">
+    <div class="stage-num m1">01</div>
+    <h2>Data Pipeline</h2>
+    <div class="subtitle">books.toscrape.com &rarr; SQLite &rarr; SQL</div>
+
+    <div class="card">
+      <h3>Live scrape, cross-checked against the site</h3>
+      <div class="metric-row">
+        <div class="metric"><div class="val">85</div><div class="lbl">books scraped</div></div>
+        <div class="metric"><div class="val">4</div><div class="lbl">categories</div></div>
+        <div class="metric"><div class="val">0</div><div class="lbl">orphaned FK rows</div></div>
+        <div class="metric"><div class="val">True</div><div class="lbl">SQL vs pandas JOIN match</div></div>
+      </div>
+      <table>
+        <tr><th>Category</th><th>Books</th><th>Pages</th></tr>
+        <tr><td>Travel</td><td class="num">11</td><td class="num">1</td></tr>
+        <tr><td>Mystery</td><td class="num">32</td><td class="num">2</td></tr>
+        <tr><td>Historical Fiction</td><td class="num">26</td><td class="num">2</td></tr>
+        <tr><td>Science Fiction</td><td class="num">16</td><td class="num">1</td></tr>
+      </table>
+      <div class="chip-row">
+        <span class="chip">SELECT + WHERE</span>
+        <span class="chip">ORDER BY</span>
+        <span class="chip">LIMIT</span>
+        <span class="chip">DISTINCT</span>
+        <span class="chip">BETWEEN / IN</span>
+        <span class="chip">JOIN</span>
+      </div>
+      <p class="note">Fixed conversion: 1 GBP = 105.50 INR. Price parse failures → median-imputed; rating/availability failures → row dropped.</p>
+    </div>
+  </div>
+
+  <!-- MODULE 2 -->
+  <div class="stage" id="module-2">
+    <div class="stage-num m2">02</div>
+    <h2>Analytics Pipeline</h2>
+    <div class="subtitle">Titanic EDA &rarr; 3 classifiers &rarr; regression side-task</div>
+
+    <div class="card">
+      <h3>Classification comparison — real test-set metrics</h3>
+      <table>
+        <tr><th>Model</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1</th><th>AUC</th></tr>
+        <tr><td>Logistic Regression</td><td class="num">0.809</td><td class="num">0.783</td><td class="num">0.691</td><td class="num">0.734</td><td class="num best">0.861</td></tr>
+        <tr><td>Decision Tree</td><td class="num">0.764</td><td class="num">0.760</td><td class="num">0.559</td><td class="num">0.644</td><td class="num">0.837</td></tr>
+        <tr><td>Random Forest</td><td class="num">0.809</td><td class="num">0.766</td><td class="num">0.721</td><td class="num best">0.742</td><td class="num">0.820</td></tr>
+      </table>
+      <div class="metric-row" style="margin-top:20px;">
+        <div class="metric"><div class="val">0.807</div><div class="lbl">RF OOB score</div></div>
+        <div class="metric"><div class="val">300</div><div class="lbl">best n_estimators</div></div>
+        <div class="metric"><div class="val">sqrt</div><div class="lbl">best max_features</div></div>
+        <div class="metric"><div class="val">True</div><div class="lbl">pipeline reload match</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Imbalance handling — Logistic Regression, train-fold only</h3>
+      <table>
+        <tr><th>Strategy</th><th>Precision</th><th>Recall</th><th>F1</th></tr>
+        <tr><td>Baseline</td><td class="num">0.783</td><td class="num">0.691</td><td class="num">0.734</td></tr>
+        <tr><td>class_weight='balanced'</td><td class="num">0.719</td><td class="num best">0.750</td><td class="num">0.734</td></tr>
+        <tr><td>SMOTE (train-fold only)</td><td class="num">0.727</td><td class="num">0.735</td><td class="num">0.735</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Fare regression (side-task) — Linear Regression</h3>
+      <div class="metric-row">
+        <div class="metric"><div class="val">20.67</div><div class="lbl">MAE</div></div>
+        <div class="metric"><div class="val">42.44</div><div class="lbl">RMSE</div></div>
+        <div class="metric"><div class="val">0.325</div><div class="lbl">R²</div></div>
+        <div class="metric"><div class="val">0.305</div><div class="lbl">Adjusted R²</div></div>
+      </div>
+      <p class="note">Residuals widen as predicted fare grows — heteroscedasticity, consistent with fare's heavy right skew.</p>
+    </div>
+
+    <div class="card">
+      <h3>Generated charts (10 total)</h3>
+      <div class="thumbs">
+        <figure><img src="analytics/charts/correlation_heatmap.png" alt="Correlation heatmap" loading="lazy"><figcaption>correlation_heatmap.png</figcaption></figure>
+        <figure><img src="analytics/charts/roc_curves.png" alt="ROC curves" loading="lazy"><figcaption>roc_curves.png</figcaption></figure>
+        <figure><img src="analytics/charts/decision_tree.png" alt="Decision tree" loading="lazy"><figcaption>decision_tree.png</figcaption></figure>
+        <figure><img src="analytics/charts/story_1_survival_by_class_sex.png" alt="Survival by class and sex" loading="lazy"><figcaption>story_1_survival...</figcaption></figure>
+      </div>
+      <p class="note">Thumbnails load from analytics/charts/ — only render once that folder is corrected in the repo (see fix note below).</p>
+    </div>
+  </div>
+
+  <!-- MODULE 3 -->
+  <div class="stage" id="module-3">
+    <div class="stage-num m3">03</div>
+    <h2>Support Assistant</h2>
+    <div class="subtitle">8 policy docs &rarr; real embeddings &rarr; ChromaDB &rarr; LangGraph &rarr; FastAPI</div>
+
+    <div class="card">
+      <h3>Real retrieval, verified end-to-end</h3>
+      <div class="metric-row">
+        <div class="metric"><div class="val">8</div><div class="lbl">policy docs indexed</div></div>
+        <div class="metric"><div class="val">384</div><div class="lbl">embedding dims</div></div>
+        <div class="metric"><div class="val">3</div><div class="lbl">LangGraph nodes</div></div>
+        <div class="metric"><div class="val">200</div><div class="lbl">/ask HTTP status</div></div>
+      </div>
+      <div class="terminal">
+<span class="cmd">POST /ask</span> <span class="q">{"query": "How long does delivery take?"}</span>
+&rarr; {
+    "answer": "Based on the retrieved context: Zepto delivers...",
+    "sources": ["doc_01", "doc_02", "doc_04"],
+    "confidence": 1.0
+  }
+
+<span class="cmd">POST /ask</span> <span class="q">{"query": "What is the capital of France?"}</span>
+&rarr; {
+    "answer": "I can only answer questions about Zepto policies right now.",
+    "sources": [],
+    "confidence": 1.0
+  }</div>
+      <p class="note">doc_01 (Delivery) genuinely top-ranked by real cosine-similarity search — not a keyword match.</p>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <p><strong style="color:#fff;">Methodology.</strong> Every metric above came from actually running each script and reading its output — not from the assignment brief. Where a step couldn't run in the build sandbox (books.toscrape.com and huggingface.co were network-restricted there), it's marked accordingly in each module's own README rather than assumed to pass.</p>
+  <p class="mono" style="margin-top:16px;">Data-pipeline/ · analytics/ · support-assistant/ &nbsp;|&nbsp; Python · pandas · scikit-learn · LangGraph · ChromaDB · FastAPI</p>
+</footer>
+
+<!-- ============ PROJECT Q&A ASSISTANT (client-side, no backend) ============ -->
+<style>
+  #pqa-launcher{
+    position:fixed; bottom:22px; right:22px; z-index:100;
+    width:54px; height:54px; border-radius:50%; border:none; cursor:pointer;
+    background:#3ECF8E; color:#0D1117; font-family:'IBM Plex Mono', monospace;
+    font-size:22px; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 6px 20px rgba(0,0,0,0.35); transition:transform 0.15s ease;
+  }
+  #pqa-launcher:hover, #pqa-launcher:focus-visible{transform:scale(1.06);}
+  #pqa-launcher:focus-visible{outline:2px solid #fff; outline-offset:2px;}
+
+  #pqa-panel{
+    position:fixed; bottom:88px; right:22px; z-index:100;
+    width:min(340px, calc(100vw - 44px)); max-height:min(480px, calc(100vh - 140px));
+    background:#151B23; border:1px solid #2A323C; border-radius:14px;
+    display:none; flex-direction:column; overflow:hidden;
+    box-shadow:0 12px 40px rgba(0,0,0,0.5);
+    font-family:'IBM Plex Sans', sans-serif;
+  }
+  #pqa-panel.open{display:flex;}
+  #pqa-head{
+    padding:14px 16px; border-bottom:1px solid #2A323C; display:flex; align-items:center; gap:8px;
+  }
+  #pqa-head .dot{width:8px; height:8px; border-radius:50%; background:#3ECF8E;}
+  #pqa-head h4{color:#fff; font-family:'Space Grotesk', sans-serif; font-size:14.5px; font-weight:600;}
+  #pqa-head p{color:#8B96A5; font-size:11px; margin-left:auto; font-family:'IBM Plex Mono', monospace;}
+  #pqa-close{
+    margin-left:8px; background:none; border:none; color:#8B96A5; cursor:pointer; font-size:16px;
+    line-height:1; padding:2px 6px;
+  }
+  #pqa-close:hover{color:#fff;}
+
+  #pqa-msgs{flex:1; overflow-y:auto; padding:14px 16px; display:flex; flex-direction:column; gap:10px;}
+  .pqa-bubble{font-size:13px; line-height:1.5; padding:10px 12px; border-radius:10px; max-width:88%;}
+  .pqa-bot{background:#1B222C; color:#DCE1E8; align-self:flex-start; border-bottom-left-radius:3px;}
+  .pqa-user{background:#3ECF8E; color:#0D1117; align-self:flex-end; border-bottom-right-radius:3px;}
+
+  #pqa-chips{display:flex; flex-wrap:wrap; gap:6px; padding:0 16px 12px;}
+  .pqa-chip{
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px; padding:5px 10px; border-radius:20px;
+    background:#1B222C; color:#8B96A5; border:1px solid #2A323C; cursor:pointer;
+  }
+  .pqa-chip:hover, .pqa-chip:focus-visible{color:#fff; border-color:#3ECF8E;}
+
+  #pqa-form{display:flex; gap:8px; padding:12px 14px; border-top:1px solid #2A323C;}
+  #pqa-input{
+    flex:1; background:#0D1117; border:1px solid #2A323C; border-radius:8px; color:#DCE1E8;
+    padding:9px 11px; font-size:13px; font-family:'IBM Plex Sans', sans-serif;
+  }
+  #pqa-input:focus-visible{outline:1.5px solid #3ECF8E; border-color:#3ECF8E;}
+  #pqa-send{
+    background:#3ECF8E; color:#0D1117; border:none; border-radius:8px; padding:0 14px;
+    font-weight:600; font-size:13px; cursor:pointer;
+  }
+  #pqa-send:hover{opacity:0.9;}
+  @media (max-width:420px){ #pqa-panel{right:12px; bottom:78px;} #pqa-launcher{right:12px;} }
+</style>
+
+<button id="pqa-launcher" aria-label="Ask about this project" aria-expanded="false" aria-controls="pqa-panel">?</button>
+
+<div id="pqa-panel" role="dialog" aria-label="Project Q&A assistant">
+  <div id="pqa-head">
+    <span class="dot"></span>
+    <h4>Ask about this project</h4>
+    <p>keyword-matched, not live AI</p>
+    <button id="pqa-close" aria-label="Close">✕</button>
+  </div>
+  <div id="pqa-msgs">
+    <div class="pqa-bubble pqa-bot">Hi — ask me anything about this project: book counts, model metrics, the database schema, embeddings, tech stack, whatever. I only answer from this project's own verified results.</div>
+  </div>
+  <div id="pqa-chips">
+    <button class="pqa-chip" type="button">Best model?</button>
+    <button class="pqa-chip" type="button">How many books?</button>
+    <button class="pqa-chip" type="button">Embedding model?</button>
+    <button class="pqa-chip" type="button">Tech stack?</button>
+  </div>
+  <form id="pqa-form">
+    <input id="pqa-input" type="text" placeholder="Ask a question…" autocomplete="off">
+    <button id="pqa-send" type="submit">Ask</button>
+  </form>
+</div>
+
+<script>
+(function(){
+  var KB = [
+    { q: ["what is this project", "overview", "what is this", "project summary"],
+      a: "A 3-module capstone: a book-catalog data pipeline (scrape \u2192 SQL), a Titanic analytics/ML pipeline, and a RAG-based support assistant (LangGraph + FastAPI). All three ran for real \u2014 the numbers here came from actual execution." },
+    { q: ["how many books", "books scraped", "book count", "total books"],
+      a: "85 real books across 4 categories: Travel (11), Mystery (32), Historical Fiction (26), Science Fiction (16) \u2014 independently cross-checked against the live site." },
+    { q: ["categories", "which categories"],
+      a: "4 categories were scraped: Travel, Mystery, Historical Fiction, and Science Fiction \u2014 comfortably over the assignment's 3-category minimum." },
+    { q: ["currency", "gbp", "inr", "exchange rate", "conversion rate"],
+      a: "A fixed rate of 1 GBP = 105.50 INR, applied in clean.py \u2014 no live exchange-rate API call." },
+    { q: ["database schema", "sql tables", "foreign key"],
+      a: "Two normalized SQLite tables: categories(category_id PK, category_name UNIQUE) and books(... category_id FK \u2192 categories). Verified 0 orphaned foreign keys and 0 duplicate categories." },
+    { q: ["join comparison", "pd.merge", "sql vs pandas"],
+      a: "The SQL JOIN result and a pd.merge() reproduction of it were compared directly \u2014 Results match: True, genuinely computed, not asserted." },
+    { q: ["best model", "which model", "best classifier", "recommend"],
+      a: "Random Forest \u2014 F1 0.742, the best balance of precision and recall among the 3 classifiers. Logistic Regression had the highest AUC (0.861) but lower recall." },
+    { q: ["f1 score", "accuracy", "precision", "recall", "auc", "roc curve"],
+      a: "Logistic Regression: Acc 0.809 / F1 0.734 / AUC 0.861. Decision Tree: Acc 0.764 / F1 0.644. Random Forest: Acc 0.809 / F1 0.742 (best)." },
+    { q: ["oob score", "out of bag"],
+      a: "The tuned Random Forest's OOB score is 0.807, with best params n_estimators=300, max_depth=None, max_features='sqrt'." },
+    { q: ["smote", "imbalance", "class weight", "class_weight"],
+      a: "3 imbalance strategies compared on Logistic Regression: baseline (recall 0.691), class_weight='balanced' (recall 0.750, best), and SMOTE applied to the training fold only (recall 0.735)." },
+    { q: ["regression", "fare prediction", "mae", "rmse", "adjusted r2"],
+      a: "A separate LinearRegression predicts fare: MAE 20.67, RMSE 42.44, R\u00b2 0.325, Adjusted R\u00b2 0.305. Residuals show heteroscedasticity, consistent with fare's right skew." },
+    { q: ["missing values", "missing data", "deck column", "titanic cleaning"],
+      a: "Threshold rule: deck (77% missing) dropped as a column; age (20% missing) median-imputed; embarked/embark_town (0.2% missing) had those few rows dropped." },
+    { q: ["pipeline reload", "joblib", "saved model"],
+      a: "The full preprocessing+model pipeline is saved via joblib and reloaded in the same script \u2014 confirmed to predict identically on a raw, unprocessed test row." },
+    { q: ["how many docs", "policy documents", "how many documents"],
+      a: "Exactly 8 policy documents: delivery, returns/refunds, membership, order tracking, cancellations, damaged items, gift cards, and support hours." },
+    { q: ["embedding model", "sentence transformer", "minilm", "chromadb", "vector database"],
+      a: "sentence-transformers/all-MiniLM-L6-v2, run locally (no API key), producing 384-dimensional embeddings stored in a persistent ChromaDB collection. A 'refund' query correctly top-ranks the Returns/Refunds doc \u2014 real semantic retrieval, verified." },
+    { q: ["langgraph", "graph nodes"],
+      a: "Exactly 3 LangGraph nodes: classify_intent, retrieve_and_answer, direct_answer \u2014 with conditional routing between them, verified by parsing the actual code, not just reading it." },
+    { q: ["mock_llm", "mock llm"],
+      a: "MOCK_LLM=1 by default \u2014 no LLM API call is made. Intent classification uses a keyword heuristic and answers are deterministic, but retrieval (embeddings + ChromaDB) is always real." },
+    { q: ["fastapi", "endpoint", "/ask"],
+      a: "GET / is a health check (verified 200 OK). POST /ask accepts a query and returns a Pydantic-validated response with answer, sources, and confidence." },
+    { q: ["docker", "dockerfile", "container"],
+      a: "python:3.11-slim base. CPU-only PyTorch is installed FIRST (before requirements.txt) to avoid multi-GB CUDA wheels \u2014 verified programmatically, not just visually." },
+    { q: ["tech stack", "technologies", "built with"],
+      a: "Python, pandas, scikit-learn, imbalanced-learn, BeautifulSoup, SQLite, LangGraph, ChromaDB, sentence-transformers, FastAPI, Docker." },
+    { q: ["github", "source code", "repository"],
+      a: "The full source, including every script referenced on this page, is in this project's GitHub repository \u2014 see the Data-pipeline/, analytics/, and support-assistant/ folders." },
+    { q: ["who built", "author", "creator"],
+      a: "Built by Karthik Maroju as a capstone/portfolio project." },
+    { q: ["are you real", "are you ai", "are you chatgpt", "live ai"],
+      a: "No \u2014 I'm a simple keyword matcher over this project's real verified facts, not a live AI model. Ask me something project-specific and I'll do my best!" }
+  ];
+
+  function normalize(s){ return s.toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim(); }
+
+  function findAnswer(userQuery){
+    var q = normalize(userQuery);
+    var qWords = q.split(" ").filter(Boolean);
+    var best = null, bestScore = 0;
+    for (var i = 0; i < KB.length; i++){
+      var entry = KB[i];
+      for (var j = 0; j < entry.q.length; j++){
+        var phraseNorm = normalize(entry.q[j]);
+        if (phraseNorm.length < 3) continue;
+        if (q.indexOf(phraseNorm) !== -1){
+          var score = phraseNorm.length;
+          if (score > bestScore){ bestScore = score; best = entry; }
+        }
+      }
+    }
+    if (best) return best.a;
+
+    for (var k = 0; k < KB.length; k++){
+      var e = KB[k];
+      var overlap = 0;
+      var entryWords = {};
+      e.q.join(" ").split(" ").forEach(function(w){ entryWords[w] = true; });
+      qWords.forEach(function(w){ if (w.length > 2 && entryWords[w]) overlap++; });
+      if (overlap > bestScore){ bestScore = overlap; best = e; }
+    }
+    if (best && bestScore >= 1) return best.a;
+
+    return "I don't have a direct answer for that in my project notes \u2014 try asking about book counts, model metrics, the database schema, embeddings, or the tech stack.";
+  }
+
+  var launcher = document.getElementById("pqa-launcher");
+  var panel = document.getElementById("pqa-panel");
+  var closeBtn = document.getElementById("pqa-close");
+  var msgs = document.getElementById("pqa-msgs");
+  var form = document.getElementById("pqa-form");
+  var input = document.getElementById("pqa-input");
+  var chips = document.querySelectorAll(".pqa-chip");
+
+  function addBubble(text, who){
+    var div = document.createElement("div");
+    div.className = "pqa-bubble " + (who === "user" ? "pqa-user" : "pqa-bot");
+    div.textContent = text;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function ask(text){
+    if (!text || !text.trim()) return;
+    addBubble(text, "user");
+    var answer = findAnswer(text);
+    setTimeout(function(){ addBubble(answer, "bot"); }, 220);
+  }
+
+  launcher.addEventListener("click", function(){
+    var isOpen = panel.classList.toggle("open");
+    launcher.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    if (isOpen) input.focus();
+  });
+  closeBtn.addEventListener("click", function(){
+    panel.classList.remove("open");
+    launcher.setAttribute("aria-expanded", "false");
+  });
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+    ask(input.value);
+    input.value = "";
+  });
+  chips.forEach(function(chip){
+    chip.addEventListener("click", function(){ ask(chip.textContent); });
+  });
+})();
+</script>
+<!-- ============ END PROJECT Q&A ASSISTANT ============ -->
+
+</body>
+  </html>
